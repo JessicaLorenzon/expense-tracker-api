@@ -1,4 +1,6 @@
-package com.lorenzon.expense_tracker_api.domain.expense;
+package com.lorenzon.expense_tracker_api.domain.expense.dto;
+
+import com.lorenzon.expense_tracker_api.domain.expense.Expense;
 
 import java.math.BigDecimal;
 import java.util.UUID;

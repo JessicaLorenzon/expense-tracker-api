@@ -3,6 +3,7 @@ package com.lorenzon.expense_tracker_api.services;
 import com.lorenzon.expense_tracker_api.domain.expense.Expense;
 import com.lorenzon.expense_tracker_api.exceptions.ExpenseNotFoundException;
 import com.lorenzon.expense_tracker_api.repositories.ExpenseRepository;
+import com.lorenzon.expense_tracker_api.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +16,8 @@ public class ExpenseService {
 
     @Autowired
     private ExpenseRepository expenseRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     public List<Expense> findAll() {
         return expenseRepository.findAll();

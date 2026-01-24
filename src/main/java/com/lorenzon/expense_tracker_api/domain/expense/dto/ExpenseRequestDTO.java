@@ -1,4 +1,4 @@
-package com.lorenzon.expense_tracker_api.domain.expense;
+package com.lorenzon.expense_tracker_api.domain.expense.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

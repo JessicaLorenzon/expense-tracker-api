@@ -1,8 +1,8 @@
 package com.lorenzon.expense_tracker_api.controllers;
 
 import com.lorenzon.expense_tracker_api.domain.expense.Expense;
-import com.lorenzon.expense_tracker_api.domain.expense.ExpenseRequestDTO;
-import com.lorenzon.expense_tracker_api.domain.expense.ExpenseResponseDTO;
+import com.lorenzon.expense_tracker_api.domain.expense.dto.ExpenseRequestDTO;
+import com.lorenzon.expense_tracker_api.domain.expense.dto.ExpenseResponseDTO;
 import com.lorenzon.expense_tracker_api.services.ExpenseService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

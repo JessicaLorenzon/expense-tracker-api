@@ -1,5 +1,7 @@
 package com.lorenzon.expense_tracker_api.domain.expense;
 
+import com.lorenzon.expense_tracker_api.domain.expense.dto.ExpenseRequestDTO;
+import com.lorenzon.expense_tracker_api.domain.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,6 +23,10 @@ public class Expense {
 
     private String description;
     private BigDecimal amount;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     public Expense(ExpenseRequestDTO body) {
         this.description = body.description();
