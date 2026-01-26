@@ -1,10 +1,12 @@
 package com.lorenzon.expense_tracker_api.services;
 
 import com.lorenzon.expense_tracker_api.domain.expense.Expense;
+import com.lorenzon.expense_tracker_api.domain.user.User;
 import com.lorenzon.expense_tracker_api.exceptions.ExpenseNotFoundException;
+import com.lorenzon.expense_tracker_api.exceptions.UserForbiddenException;
 import com.lorenzon.expense_tracker_api.repositories.ExpenseRepository;
-import com.lorenzon.expense_tracker_api.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,21 +18,27 @@ public class ExpenseService {
 
     @Autowired
     private ExpenseRepository expenseRepository;
-    @Autowired
-    private UserRepository userRepository;
 
     public List<Expense> findAll() {
-        return expenseRepository.findAll();
+        User user = getAuthenticatedUser();
+
+        return expenseRepository.findAllByUser(user);
     }
 
     @Transactional
     public Expense insert(Expense expense) {
-        return expenseRepository.save(expense);
+        User user = getAuthenticatedUser();
+
+        Expense newExpense = new Expense(expense.getDescription(), expense.getAmount(), user);
+
+        return expenseRepository.save(newExpense);
     }
 
     @Transactional
     public Expense update(UUID expenseId, Expense updateExpense) {
         Expense expense = findById(expenseId);
+
+        checkIfUserIsOwner(expense);
 
         expense.setDescription(updateExpense.getDescription());
         expense.setAmount(updateExpense.getAmount());
@@ -42,6 +50,8 @@ public class ExpenseService {
     public void delete(UUID expenseId) {
         Expense expense = findById(expenseId);
 
+        checkIfUserIsOwner(expense);
+
         expenseRepository.delete(expense);
     }
 
@@ -49,4 +59,21 @@ public class ExpenseService {
         return expenseRepository.findById(expenseId).orElseThrow(() -> new ExpenseNotFoundException(expenseId));
     }
 
+    private User getAuthenticatedUser() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !(authentication.getPrincipal() instanceof User)) {
+            throw new UserForbiddenException();
+        }
+
+        return (User) authentication.getPrincipal();
+    }
+
+    private void checkIfUserIsOwner(Expense expense) {
+        User loggedUser = getAuthenticatedUser();
+
+        if (!expense.getUser().getId().equals(loggedUser.getId())) {
+            throw new UserForbiddenException();
+        }
+    }
 }

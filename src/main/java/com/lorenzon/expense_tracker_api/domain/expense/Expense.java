@@ -32,4 +32,10 @@ public class Expense {
         this.description = body.description();
         this.amount = body.amount();
     }
+
+    public Expense(String description, BigDecimal amount, User user) {
+        this.description = description;
+        this.amount = amount;
+        this.user = user;
+    }
 }
