@@ -29,19 +29,21 @@ public class ExpenseService {
     public Expense insert(Expense expense) {
         User user = getAuthenticatedUser();
 
-        Expense newExpense = new Expense(expense.getDescription(), expense.getAmount(), user);
+        Expense newExpense = new Expense(expense, user);
 
         return expenseRepository.save(newExpense);
     }
 
     @Transactional
-    public Expense update(UUID expenseId, Expense updateExpense) {
+    public Expense update(UUID expenseId, Expense updatedExpense) {
         Expense expense = findById(expenseId);
 
         checkIfUserIsOwner(expense);
 
-        expense.setDescription(updateExpense.getDescription());
-        expense.setAmount(updateExpense.getAmount());
+        expense.setDescription(updatedExpense.getDescription());
+        expense.setAmount(updatedExpense.getAmount());
+        expense.setCategory(updatedExpense.getCategory());
+        expense.setExpenseDate(updatedExpense.getExpenseDate());
 
         return expense;
     }

@@ -38,8 +38,8 @@ public class ExpenseController {
 
     @PutMapping("/{expenseId}")
     public ResponseEntity<ExpenseResponseDTO> updateExpense(@PathVariable UUID expenseId, @RequestBody @Valid ExpenseRequestDTO body) {
-        Expense updateExpense = new Expense(body);
-        ExpenseResponseDTO response = new ExpenseResponseDTO(expenseService.update(expenseId, updateExpense));
+        Expense updatedExpense = new Expense(body);
+        ExpenseResponseDTO response = new ExpenseResponseDTO(expenseService.update(expenseId, updatedExpense));
 
         return ResponseEntity.ok(response);
     }

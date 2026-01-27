@@ -6,8 +6,12 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
@@ -24,6 +28,18 @@ public class Expense {
     private String description;
     private BigDecimal amount;
 
+    @Enumerated(EnumType.STRING)
+    private ExpenseCategory category;
+
+    private LocalDate expenseDate;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    private OffsetDateTime createdAt;
+
+    @UpdateTimestamp
+    private OffsetDateTime updatedAt;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -31,11 +47,15 @@ public class Expense {
     public Expense(ExpenseRequestDTO body) {
         this.description = body.description();
         this.amount = body.amount();
+        this.category = body.category();
+        this.expenseDate = body.expenseDate();
     }
 
-    public Expense(String description, BigDecimal amount, User user) {
-        this.description = description;
-        this.amount = amount;
+    public Expense(Expense expense, User user) {
+        this.description = expense.getDescription();
+        this.amount = expense.getAmount();
+        this.category = expense.getCategory();
+        this.expenseDate = expense.getExpenseDate();
         this.user = user;
     }
 }
