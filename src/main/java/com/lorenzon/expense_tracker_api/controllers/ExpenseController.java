@@ -1,6 +1,7 @@
 package com.lorenzon.expense_tracker_api.controllers;
 
 import com.lorenzon.expense_tracker_api.domain.expense.Expense;
+import com.lorenzon.expense_tracker_api.domain.expense.ExpensePeriod;
 import com.lorenzon.expense_tracker_api.domain.expense.dto.ExpenseRequestDTO;
 import com.lorenzon.expense_tracker_api.domain.expense.dto.ExpenseResponseDTO;
 import com.lorenzon.expense_tracker_api.services.ExpenseService;
@@ -10,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,8 +23,20 @@ public class ExpenseController {
     private ExpenseService expenseService;
 
     @GetMapping
-    public ResponseEntity<List<ExpenseResponseDTO>> getAllExpenses() {
-        List<Expense> expenses = expenseService.findAll();
+    public ResponseEntity<List<ExpenseResponseDTO>> getAllExpenses(@RequestParam(required = false) String period,
+                                                                   @RequestParam(required = false) LocalDate startDate,
+                                                                   @RequestParam(required = false) LocalDate endDate) {
+        List<Expense> expenses;
+
+        if (period != null) {
+            ExpensePeriod expensePeriod = ExpensePeriod.from(period);
+            expenses = expenseService.findByFilter(expensePeriod);
+        } else if (startDate != null && endDate != null) {
+            expenses = expenseService.findByCustom(startDate, endDate);
+        } else {
+            expenses = expenseService.findAll();
+        }
+
         List<ExpenseResponseDTO> response = expenses.stream().map(x -> new ExpenseResponseDTO(x)).toList();
 
         return ResponseEntity.ok(response);

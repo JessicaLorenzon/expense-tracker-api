@@ -1,6 +1,7 @@
 package com.lorenzon.expense_tracker_api.exceptions.handler;
 
 import com.lorenzon.expense_tracker_api.exceptions.ExpenseNotFoundException;
+import com.lorenzon.expense_tracker_api.exceptions.InvalidPeriodException;
 import com.lorenzon.expense_tracker_api.exceptions.UserForbiddenException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -28,6 +29,16 @@ public class ControllerExceptionHandler {
         problemDetail.setTitle("User forbidden");
         problemDetail.setDetail(e.getMessage());
         problemDetail.setType(URI.create("https://expense-tracker-api.com/errors/user-forbidden"));
+
+        return problemDetail;
+    }
+
+    @ExceptionHandler(InvalidPeriodException.class)
+    public ProblemDetail invalidPeriodException(InvalidPeriodException e) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle("Invalid period");
+        problemDetail.setDetail(e.getMessage());
+        problemDetail.setType(URI.create("https://expense-tracker-api.com/errors/invalid-period"));
 
         return problemDetail;
     }

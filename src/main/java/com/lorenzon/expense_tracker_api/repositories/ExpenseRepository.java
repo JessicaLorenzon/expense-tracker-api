@@ -4,10 +4,14 @@ import com.lorenzon.expense_tracker_api.domain.expense.Expense;
 import com.lorenzon.expense_tracker_api.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
 public interface ExpenseRepository extends JpaRepository<Expense, UUID> {
 
     List<Expense> findAllByUser(User user);
+
+    List<Expense> findByUserAndExpenseDateBetween(User user, LocalDate date1, LocalDate date2);
+
 }

@@ -1,8 +1,10 @@
 package com.lorenzon.expense_tracker_api.services;
 
 import com.lorenzon.expense_tracker_api.domain.expense.Expense;
+import com.lorenzon.expense_tracker_api.domain.expense.ExpensePeriod;
 import com.lorenzon.expense_tracker_api.domain.user.User;
 import com.lorenzon.expense_tracker_api.exceptions.ExpenseNotFoundException;
+import com.lorenzon.expense_tracker_api.exceptions.InvalidPeriodException;
 import com.lorenzon.expense_tracker_api.exceptions.UserForbiddenException;
 import com.lorenzon.expense_tracker_api.repositories.ExpenseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,6 +26,23 @@ public class ExpenseService {
         User user = getAuthenticatedUser();
 
         return expenseRepository.findAllByUser(user);
+    }
+
+    public List<Expense> findByFilter(ExpensePeriod period) {
+        LocalDate now = LocalDate.now();
+
+        return switch (period) {
+            case PAST_WEEK -> findByPeriod(now.minusWeeks(1), now);
+            case PAST_MONTH -> findByPeriod(now.minusMonths(1), now);
+            case LAST_3_MONTHS -> findByPeriod(now.minusMonths(3), now);
+        };
+    }
+
+    public List<Expense> findByCustom(LocalDate startDate, LocalDate endDate) {
+        if (startDate.isAfter(endDate)) {
+            throw new InvalidPeriodException();
+        }
+        return findByPeriod(startDate, endDate);
     }
 
     @Transactional
@@ -55,6 +75,12 @@ public class ExpenseService {
         checkIfUserIsOwner(expense);
 
         expenseRepository.delete(expense);
+    }
+
+    private List<Expense> findByPeriod(LocalDate startDate, LocalDate endDate) {
+        User user = getAuthenticatedUser();
+
+        return expenseRepository.findByUserAndExpenseDateBetween(user, startDate, endDate);
     }
 
     private Expense findById(UUID expenseId) {
