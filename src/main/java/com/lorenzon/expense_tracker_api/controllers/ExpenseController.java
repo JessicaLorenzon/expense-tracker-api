@@ -4,6 +4,7 @@ import com.lorenzon.expense_tracker_api.domain.expense.Expense;
 import com.lorenzon.expense_tracker_api.domain.expense.ExpensePeriod;
 import com.lorenzon.expense_tracker_api.domain.expense.dto.ExpenseRequestDTO;
 import com.lorenzon.expense_tracker_api.domain.expense.dto.ExpenseResponseDTO;
+import com.lorenzon.expense_tracker_api.exceptions.InvalidPeriodException;
 import com.lorenzon.expense_tracker_api.services.ExpenseService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +30,18 @@ public class ExpenseController {
         List<Expense> expenses;
 
         if (period != null) {
+            if (startDate != null || endDate != null) {
+                throw new InvalidPeriodException();
+            }
             ExpensePeriod expensePeriod = ExpensePeriod.from(period);
             expenses = expenseService.findByFilter(expensePeriod);
-        } else if (startDate != null && endDate != null) {
+
+        } else if (startDate != null || endDate != null) {
+            if (startDate == null || endDate == null) {
+                throw new InvalidPeriodException();
+            }
             expenses = expenseService.findByCustom(startDate, endDate);
+
         } else {
             expenses = expenseService.findAll();
         }

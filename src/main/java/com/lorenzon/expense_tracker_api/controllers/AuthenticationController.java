@@ -1,9 +1,10 @@
 package com.lorenzon.expense_tracker_api.controllers;
 
 import com.lorenzon.expense_tracker_api.domain.user.User;
-import com.lorenzon.expense_tracker_api.domain.user.dto.AuthenticationDTO;
+import com.lorenzon.expense_tracker_api.domain.user.dto.LoginRequestDTO;
 import com.lorenzon.expense_tracker_api.domain.user.dto.LoginResponseDTO;
 import com.lorenzon.expense_tracker_api.domain.user.dto.RegisterDTO;
+import com.lorenzon.expense_tracker_api.exceptions.UserAlreadyExistsException;
 import com.lorenzon.expense_tracker_api.infra.security.TokenService;
 import com.lorenzon.expense_tracker_api.repositories.UserRepository;
 import jakarta.validation.Valid;
@@ -29,7 +30,7 @@ public class AuthenticationController {
     private TokenService tokenService;
 
     @PostMapping("/login")
-    public ResponseEntity login(@RequestBody @Valid AuthenticationDTO data) {
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody @Valid LoginRequestDTO data) {
         var usernamePassword = new UsernamePasswordAuthenticationToken(data.login(), data.password());
         var auth = authenticationManager.authenticate(usernamePassword);
 
@@ -39,8 +40,8 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity register(@RequestBody @Valid RegisterDTO data) {
-        if (userRepository.findByLogin(data.login()) != null) return ResponseEntity.badRequest().build();
+    public ResponseEntity<Void> register(@RequestBody @Valid RegisterDTO data) {
+        if (userRepository.findByLogin(data.login()) != null) throw new UserAlreadyExistsException();
 
         String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
         User newUser = new User(data.login(), encryptedPassword);
